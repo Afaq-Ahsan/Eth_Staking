@@ -1,4 +1,4 @@
-/
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
@@ -760,11 +760,10 @@ contract StakingContract is ReentrancyGuard, Ownable {
     }
 
    
-    uint256 public stakersCount = 0;
-    uint256 public unstakersCount = 0;
+    uint256 private stakersCount = 0;
+    uint256 private unstakersCount = 0;
     // uint256 public minStake = 1 ether; // Minimum stake amount: 1 Ether
-    uint256 public lockPeriod = 1;
-    uint256 public apy = 50;
+    uint256 private apy = 50;
     address Owner;
     
 
@@ -779,7 +778,7 @@ contract StakingContract is ReentrancyGuard, Ownable {
         Owner = msg.sender;
     }
 
-    function Stake() public payable nonReentrant {
+    function Stake() public payable nonReentrant {                        
          require(msg.value >= 1 wei, "Minimum stake not met");
         stakers[msg.sender].depositedAmount += msg.value;
         stakers[msg.sender].timeOfLastUpdate = block.timestamp;
@@ -817,15 +816,24 @@ contract StakingContract is ReentrancyGuard, Ownable {
 
     function calculateRewards(address _staker) public view returns (uint256) {
         if (block.timestamp >= stakers[_staker].endTime) {
+                                // 31536000    * 1 *50                0
             uint256 timeElapsed = stakers[_staker].endTime - stakers[_staker].timeOfLastUpdate;
             uint256 rewards = (timeElapsed * stakers[_staker].depositedAmount * apy) / 100;
             return rewards;
         } else {
+           
             return 0;
         }
     }
 
     function checkContractBalance()public view returns(uint){
         return address(this).balance;
+    }
+
+    function noOfStakers()public view returns(uint){
+        return stakersCount;
+    }
+    function noOfUnStakers()public view returns(uint){
+        return unstakersCount;
     }
 }
